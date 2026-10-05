@@ -1,142 +1,104 @@
-# Inventory_kaizen — Claude Code Rules
+# Inventory_kaizen: rules for Claude Code
 
-This repo is the **knowledge base** for our Inventory Management System project. Several developers work here on different domains (API data fetching, voice-to-search, and more). All the work is done through Claude Code, so **Claude Code is responsible for recording everything** that is learned: what was checked, against which source of truth, which sources were visited, what went wrong, and how it was fixed.
+This repo is the **knowledge base** for the Inventory Management System project. Many developers work in different domains, all through Claude Code, so **you are responsible for recording everything that is learned**: what was checked, against which source of truth, which sources were visited, how to connect, what went wrong and how it was fixed. A stranger must be able to open a folder and repeat the work without asking anyone.
 
-The goal: someone who has never seen the work can open a folder and learn how to connect, how to research, what to avoid, and what the right answer is, without asking anyone.
+These rules are backed by checks (`scripts/validate.mjs`, git hooks, CI, `.claude/settings.json`). A skipped rule is caught, but do not rely on that: follow them.
 
-Every piece of work is a small task. Each task checks something against a **source of truth** and records the result.
+## 0. Session start
 
-## 1. Where things go
+- The session hook prints the git identity commits will use. **Tell the user whose identity it is before the first commit.** If it is empty or not the person in front of you, stop and ask.
+- Hooks must be on: `git config core.hooksPath` should be `.githooks` (the session hook sets it). Node 18+ is required; if `node` is missing, tell the user.
+- If it is unclear which domain a request belongs to, ask. Never guess.
 
-Never put files in the repo root. Layout:
+## 1. Layout
 
+```text
+<domain>/
+    README.md                      # owners, scope, generated task + problem tables
+    sources.md                     # sources of truth, sources visited, unreliable sources
+    connections.md                 # how to connect (variable names only)
+    troubleshooting/<slug>.md      # ONE FILE PER PROBLEM (+ README.md)
+    tasks/<YYYY-MM-DD>-<name>/     # one folder per task, README.md from templates/TASK_README.md
+docs/                              # hub docs: getting-started, overview, glossary, research playbook, decisions/
+templates/                         # TASK_README.md, PROBLEM.md, domain/ scaffold
+scripts/validate.mjs               # validator and index generator
+INDEX.md                           # GENERATED list of all domains, tasks, problems
 ```
-<domain>/                          # one folder per domain (workstream)
-    README.md                      # what this domain is, task index
-    sources.md                     # living: sources of truth + every source visited
-    connections.md                 # living: how to connect (auth, endpoints, env var names)
-    troubleshooting.md             # living: problem -> cause -> fix
-    <YYYY-MM-DD>-<task-name>/      # one folder per task
-        README.md                  # filled from templates/TASK_README.md
-        ...code, sample output...
-```
 
-Current domains:
-
-| Folder | What it covers |
-|---|---|
-| `api-data-fetching/` | Fetching inventory data through the API; verifying the service account works |
-| `voice-search/` | Voice-to-search over inventory data using the API |
-| `shared/` | Code or notes used by more than one domain (API client helpers, anonymised sample data, glossary) |
+- Only `README.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `SECURITY.md`, `INDEX.md`, `.gitignore`, `.gitattributes` may sit in the repo root. Task work never goes there. The validator fails otherwise.
+- Names are lowercase `kebab-case` (Python modules may use `snake_case`). Code needed by two or more domains goes in `shared/`, never copied.
+- The live domain list is `INDEX.md`. Never write into another domain's folder unless the user says to.
 
 ### New domain = new folder
-
-If a developer starts work in an area that is not in the table above:
-1. Create a new top-level folder with a short, relevant `kebab-case` name (for example `stock-alerts`, `barcode-scanning`, `reporting`).
-2. Scaffold it by copying everything in `templates/domain/` into it, then fill in the `README.md`.
-3. Add a row to the table above and to the root `README.md`.
-4. Commit that as its own commit: `docs(<domain>): create <domain> workspace`.
-
-If you are not sure which domain a request belongs to, ask. Do not guess, and never write into another domain's folder unless the user explicitly says to.
-
-Naming: lowercase `kebab-case` for folders and files. Python modules may use `snake_case`. Code used by two or more domains goes in `shared/`, not copied.
+When work does not fit an existing domain (for example `stock-alerts`, `barcode-scanning`):
+1. Copy everything in `templates/domain/` into a new top-level folder with a short relevant name.
+2. Fill the header table in its `README.md` (**Owners**, **Scope**, **Created**) and the intro paragraph.
+3. Run `node scripts/validate.mjs --write`, then commit on its own: `docs(<domain>): create <domain> workspace`.
 
 ## 2. Document as you work, not at the end
 
-Do not wait until the task is done. Update the files while working, so nothing is lost if the session stops.
+Write to disk while you work so nothing is lost if the session stops. Commit locally after each meaningful unit.
 
-| When this happens | Record it here |
+| When this happens | Record it in |
 |---|---|
-| You decide what the source of truth is | Task README **Source of truth**, and `<domain>/sources.md` |
-| You read a doc, web page, API reference, repo, dashboard or sheet | Task README **Sources visited** (link, what it gave you, date). Add to `<domain>/sources.md` if it is useful beyond this task |
-| You work out how to authenticate or connect | Task README **How to connect**, and `<domain>/connections.md` |
-| You search or research something | Task README **Research notes**: what you searched for, what you found, what you ruled out |
-| You hit an error or obstacle | Task README **Obstacles and fixes** (exact error, cause, fix), and a generalised entry in `<domain>/troubleshooting.md` |
-| The API or code disagrees with the source of truth | Task README **Mismatches**, with an example |
-| You finish | Task README **Result** and **Status** |
+| You decide the source of truth | task README **Source of truth**; domain `sources.md` |
+| You open any doc, page, API reference, repo, dashboard or sheet | task README **Sources visited** (exact link, what it gave, date); `sources.md` if useful beyond the task |
+| You work out how to authenticate or connect | task README **How to connect**; domain `connections.md` |
+| You search or research | task README **Research notes**: searched, found, ruled out |
+| You hit an error or obstacle | task README **Obstacles and fixes** (exact error, cause, fix, what did not work); **and** a new `troubleshooting/<slug>.md` from `templates/PROBLEM.md` if anyone else could hit it |
+| API or code disagrees with the source of truth | task README **Mismatches**, with an example |
+| You finish | task README **Result** and **Status** (`in-progress`, `working`, `failed`, `inconclusive`) |
 
-### What good entries look like
-- **Sources visited**: the exact URL, doc name or endpoint, what you took from it, the date. "https://example.com/docs/auth — explains the token scopes; need `inventory.read`" is good. "Looked at docs" is not.
-- **Obstacles**: paste the exact error text (with secrets removed), say what the real cause was, and what fixed it. Include fixes that did **not** work, so nobody repeats them.
-- **Results**: facts and real output. "Returned 200 with 143 items; 3 SKUs missing vs the sheet" beats "works fine".
-- **Dead ends and failures are knowledge.** Record them.
+Good entries are specific and dated: exact links, exact error text (secrets removed), real output and counts ("returned 200 with 143 items; 3 SKUs missing vs the sheet"). Record failures, dead ends and fixes that did not work: they are knowledge. In `sources.md` and `connections.md` add new rows or sections at the **bottom**.
 
-### Promote reusable learnings
-After a task, anything another person could hit again moves into the domain's living files:
-- A new connection detail or auth step → `connections.md`
-- A problem and its fix → `troubleshooting.md` (format: symptom, exact error, cause, fix, link to the task)
-- A new reliable source or a source found to be wrong or outdated → `sources.md`
+Every section of the task template must be filled. If it does not apply, write `n/a` or `none` with a reason. Never leave a `<placeholder>`. Do not hand-edit generated blocks (between `BEGIN GENERATED` and `END GENERATED`) or `INDEX.md`.
 
-Keep the task README as the detailed story and the living files as the quick reference. Link between them.
+## 3. Research
 
-## 3. Task README is required
+Follow `docs/research-playbook.md`: check this repo first (`INDEX.md`, the domain's `sources.md` and `troubleshooting/`, `git grep -i "<error text>"`), then official docs for the exact version, changelogs and issues, source code, and community answers last. Verify by running the smallest check, not by reading. Log every source you open, including MCP doc lookups and web searches.
 
-Copy `templates/TASK_README.md` into every new task folder and fill in all sections. A task without a completed README is not finished. If a section does not apply, write "n/a" with a reason; do not delete it.
+## 4. Secrets
 
-## 4. Secrets: never commit them
+Never commit service account JSON, key files, `.env`, tokens, passwords, or real customer or inventory data. Use small anonymised samples.
 
-This project uses a service account and API credentials. Never commit:
-- Service account JSON key files, `.env` files, API keys, tokens, passwords
-- Real customer or inventory data that is not already public. Use small anonymised samples.
+- Read secrets from environment variables. Docs list variable **names** only; provide a `.env.example` with placeholders inside the task folder (never the repo root). Key files live outside the repo.
+- Never read key files or `.env` (denied in `.claude/settings.json`). If a user pastes a secret into chat, do not write it to any file, and tell them to rotate it.
+- Remove tokens, keys, private emails and private URLs from every error, log and response you paste into docs.
+- The pre-commit hook and CI scan contents and file names. If it reports a secret, stop, unstage, tell the user. If a secret reached a commit, tell the user immediately: it must be rotated, and deleting it later does not remove it from history. Follow `SECURITY.md`.
+- `kaizen-allow-secret` on a line exempts it from the scan: only for obviously fake examples, and say so in the commit.
 
-Rules:
-- Read secrets from environment variables. In docs, list only the **variable names** (for example `GOOGLE_APPLICATION_CREDENTIALS`) and give a `.env.example` with placeholders.
-- When pasting errors, logs or responses into docs, remove tokens, keys, private emails, and private URLs first.
-- Before every commit, inspect the staged files for anything credential-like. If you find one, stop, unstage it, and tell the user.
-- If a secret was already committed, tell the user immediately. It must be rotated; deleting the file in a later commit does not remove it from history.
+## 5. Finish: validate, commit, push
 
-## 5. Commits
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) with the **domain as the scope**:
-
-```
-<type>(<domain>): <short imperative summary>
-```
-
-Types: `feat` (new task or capability), `fix`, `docs`, `test`, `refactor`, `chore`.
-
-Good:
-- `feat(api-data-fetching): add service account auth check for inventory API`
-- `docs(api-data-fetching): add 403 troubleshooting for missing inventory.read role`
-- `docs(voice-search): record accuracy results for Bengali queries`
-- `fix(shared): handle pagination in API client`
-
-Bad: `update`, `changes`, `first commit`, `final`, `fix stuff`.
-
-Rules:
-- Summary under 72 characters, imperative mood.
-- Add a body when the *why* or the outcome matters (for example "service account returns 403 on /items; needs inventory.read role").
-- **One logical change per commit, and one domain per commit.** If work touches two domains, make two commits.
-- Stage specific paths (`git add api-data-fetching/<task>/`), never `git add .` or `git add -A`.
-- Run `git status` and `git diff --staged` before committing.
-- End commits with the `Co-Authored-By` line the harness provides.
-
-## 6. Pushing
-
-The team relies on this repo being up to date, so **push when a task is finished**:
-1. All README sections and living files are updated (section 2).
-2. Staged files are checked for secrets (section 4).
-3. Commit (section 5), then `git pull --rebase origin main`, then `git push origin main`.
-
-Safety rules:
-- Never force-push. Never rewrite history that is already pushed.
-- If the pull brings conflicts, stop and show the user. Do not resolve another developer's changes on your own.
-- Check `git config user.name` and `git config user.email` at the start of a session and tell the user whose identity commits will use, so commits are attributed to the right person.
-- If the push is rejected or authentication fails, report it. Do not try workarounds like changing remotes or credentials.
+1. `node scripts/validate.mjs --write`: refreshes generated tables and checks everything. Fix every reported problem.
+2. `git status`, then stage **specific paths**, including regenerated files (`INDEX.md`, the domain `README.md`, root `README.md`). Never `git add .` or `-A` (denied).
+3. `git diff --staged`: look for anything credential-like.
+4. Commit with the format below. The commit-msg hook enforces it. Never use `--no-verify` (denied).
+5. `git pull --rebase origin main`. If generated files conflict (`INDEX.md`, generated blocks in READMEs), run `node scripts/validate.mjs --write`, `git add` them, and continue the rebase. For any other conflict, **stop and show the user**; never resolve another developer's changes yourself.
+6. `git push origin main`. Never force-push; never rewrite pushed history.
+7. If the push is rejected because `main` is protected (pull request required): create branch `<name>/<domain>-<task>`, push it, and tell the user to open a pull request. If authentication fails, report it. Do not change remotes or credentials to work around it.
 
 If the user says "don't push" or "just commit", follow that.
 
-## 7. Code style
+### Commit format
+```text
+<type>(<scope>): <summary of 72 characters or fewer, imperative>
+```
+- **type**: `feat` (new task or capability), `fix`, `docs`, `test`, `refactor`, `chore`
+- **scope**: the domain folder name, or `repo` (tooling, hooks, CI, these rules), `hub` (`docs/`, README, INDEX), `templates`
+- **One logical change and one scope per commit.** Work touching two domains is two commits.
+- Add a body when the why or the outcome matters ("service account returns 403 on /items; needs the inventory read role").
+- End with the `Co-Authored-By` line the harness provides.
 
-- Match the language already used in the task. Keep scripts small and runnable on their own, with dependencies listed in a `requirements.txt` or `package.json` in the task folder.
-- Put results in the README, not only in chat.
-- If the API response disagrees with the source of truth, say so plainly, with an example.
+Good: `feat(api-data-fetching): add service account auth check`, `docs(voice-search): record accuracy results for Bengali queries`, `fix(shared): handle pagination in API client`. Bad: `update`, `changes`, `final`, `first commit`.
 
-## 8. Before you finish a task
+## 6. Code
 
-1. The task folder is in the right domain (or a new domain folder was created per section 1).
-2. Task README is complete: goal, source of truth, sources visited, how to connect, research notes, obstacles and fixes, result, status.
-3. Living files (`sources.md`, `connections.md`, `troubleshooting.md`) have the reusable learnings, and the domain README task table has a new row.
-4. No secrets or large data dumps are staged.
-5. The commit follows section 5, and was pushed per section 6.
-6. Tell the user what you added, where it is, and whether it was pushed.
+Match the language already used in the task. Keep scripts small and runnable on their own, with dependencies listed in `requirements.txt` or `package.json` in the task folder. Put results in the README, not only in chat.
+
+## 7. Done means
+
+1. Work is in the right domain's `tasks/<date>-<name>/`, or a new domain was scaffolded.
+2. The task README is complete; reusable problems have their own `troubleshooting/` file; `connections.md` and `sources.md` are updated.
+3. `node scripts/validate.mjs` passes.
+4. No secrets or data dumps are staged. Commits follow the format and are pushed (section 5).
+5. You told the user what was added, where, and whether it was pushed.
