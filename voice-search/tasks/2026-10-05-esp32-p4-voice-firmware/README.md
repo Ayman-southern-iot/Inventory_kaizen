@@ -128,8 +128,10 @@ but those figures assume an AVX2 CPU. Ayman measured the actual VM — no AVX2 �
 | 10 | `403 FORBIDDEN_NETWORK` from the speech service | The allowlist held the board's LAN IP, but NAT presents the office public address | Ayman allowlisted the NAT address | Changing SSID; the board's own IP is never what the VM sees |
 | 11 | Transcripts are fabrications ("Thank you very much" ×12) | Whisper hallucinates on low-SNR audio rather than returning empty | **Unresolved** — see Next steps | Gain 30/32/42 dB; mono vs stereo; level gating; a repetition filter |
 
-Reusable ones belong in `../../troubleshooting/`; #9, #10 and #11 are the strongest
-candidates.
+The three reusable ones are written up in full:
+- [`ap-client-isolation-blocks-device-server.md`](../../troubleshooting/ap-client-isolation-blocks-device-server.md) (#9)
+- [`ip-allowlist-useless-behind-nat.md`](../../troubleshooting/ip-allowlist-useless-behind-nat.md) (#10)
+- [`whisper-hallucinates-on-quiet-audio.md`](../../troubleshooting/whisper-hallucinates-on-quiet-audio.md) (#11)
 
 ## Result
 
