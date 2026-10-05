@@ -2,10 +2,16 @@
 
 | | |
 |---|---|
-| **Domain** | `<api-data-fetching / voice-search / ...>` |
+| **Domain** | `<domain-folder-name>` |
 | **Owner** | <name> |
 | **Date** | <YYYY-MM-DD> |
-| **Status** | <working / failed / inconclusive> |
+| **Status** | <in-progress / working / failed / inconclusive> |
+
+<!--
+Copy this file to <domain>/tasks/<YYYY-MM-DD>-<kebab-case-name>/README.md.
+Fill in every section while you work. If a section does not apply, write "n/a" or "none" and say why.
+Never paste secrets: names of environment variables only. Remove tokens, keys and private data from errors and logs.
+-->
 
 ## Goal
 <The one question this task answers.>
@@ -21,7 +27,7 @@ Every doc, page, API reference, repo, dashboard or sheet opened during this task
 | | | | |
 
 ## How to connect
-<Auth method, base URL, scopes/roles needed, the steps that finally worked. Variable names only, never values.>
+<Auth method, base URL, scopes/roles needed, the steps that finally worked. Environment variable names only.>
 
 Required environment variables:
 - `EXAMPLE_VAR`: <what it is>
@@ -40,7 +46,7 @@ Required environment variables:
 |---|---|---|---|---|
 | 1 | | | | |
 
-Reusable ones are also copied to `../troubleshooting.md`.
+Reusable problems also get their own file in `../../troubleshooting/<slug>.md`.
 
 ## Result
 <What actually happened. Real, non-secret output: status codes, counts, sample records, screenshots.>
