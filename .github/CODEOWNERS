@@ -1,0 +1,15 @@
+# Who must review changes (enforced once branch protection requires code owner review).
+# Replace the default owner with a team (@org/team-name) as the project grows.
+*                       @Ayman-southern-iot
+
+# One line per domain, owned by the people who work in it. Example:
+# /api-data-fetching/   @github-handle-1
+# /voice-search/        @github-handle-2 @github-handle-3
+# /docs/decisions/      @Ayman-southern-iot
+
+# Repo tooling and rules: keep with the repo owner.
+/scripts/               @Ayman-southern-iot
+/.githooks/             @Ayman-southern-iot
+/.github/               @Ayman-southern-iot
+/.claude/               @Ayman-southern-iot
+/CLAUDE.md              @Ayman-southern-iot
