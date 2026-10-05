@@ -57,6 +57,7 @@ Files:
 |---|---|---|---|---|
 | 1 | Browser console: `Failed to load resource: 404 /favicon.ico` | The server had no route for the favicon request the browser makes on its own | The server now answers `/favicon.ico` with 204 | n/a |
 | 2 | Browser-tool output folder `.playwright-mcp/` appeared in the repo, holding screenshots of real inventory | The browser test tool saves screenshots and page snapshots in the working directory | Deleted it and added it to `.gitignore` | n/a |
+| 3 | Browser: `This site can't be reached. localhost refused to connect. ERR_CONNECTION_REFUSED` on `http://localhost:5177` | The server was not running (it had been stopped after testing, and a server only lives while its process does) | Started the server again. See [localhost-refused-to-connect](../../troubleshooting/localhost-refused-to-connect.md) | Reloading the page |
 
 ## Result
 Working against the real IMS API on 2026-10-05.
@@ -73,6 +74,8 @@ Working against the real IMS API on 2026-10-05.
   - requests with a foreign `Host` header and non-GET requests are refused;
   - product text is rendered as plain text (`textContent`), so hostile text in a product name or description cannot run as script.
 - **Not yet done:** a real end-to-end check where a product is changed in IMS and the open page updates. The inventory read key cannot change data, so this needs someone to edit a product or stock in the IMS UI while the page is open.
+
+- **Owner review:** Mahmud opened the running page and judged it good. The first attempt failed only because the server was not running (obstacle 3).
 
 ## Mismatches
 None found. Product count on the page (65) equals the catalogue count and the earlier probe.

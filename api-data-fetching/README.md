@@ -28,6 +28,7 @@ This domain checks that the inventory API can be reached with the service accoun
 <!-- BEGIN GENERATED: problems -->
 | Date | Problem |
 |---|---|
+| 2026-10-05 | [Browser says "localhost refused to connect" on the live cards page](troubleshooting/localhost-refused-to-connect.md) |
 | 2026-10-05 | [Validator flags the local .env file as a stray root file](troubleshooting/validator-flags-root-env-file.md) |
 <!-- END GENERATED: problems -->
 
