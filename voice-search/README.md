@@ -1,16 +1,32 @@
-﻿# voice-search
+# voice-search
 
-Voice-to-search over inventory data using the API.
+| | |
+|---|---|
+| **Owners** | Redwan, Mahmud |
+| **Scope** | Voice-to-search over inventory data using the API. |
+| **Created** | 2026-10-05 |
 
-Living references (keep these updated, see root `CLAUDE.md`):
+This domain explores searching inventory by voice: speech input, turning it into an API query, and checking the results against the source of truth. It depends on the connection details recorded in api-data-fetching.
+
+## Start here
+
 - [sources.md](sources.md): sources of truth and sources visited
-- [connections.md](connections.md): how to connect
-- [troubleshooting.md](troubleshooting.md): problems and fixes
+- [connections.md](connections.md): how to connect (auth, endpoints, variable names)
+- [troubleshooting/](troubleshooting/README.md): problems and fixes, one file per problem
 
 ## Tasks
 
-| Date | Task | Status | Summary |
-|---|---|---|---|
-| | _none yet_ | | |
+<!-- BEGIN GENERATED: tasks -->
+_No tasks yet._
+<!-- END GENERATED: tasks -->
 
-Add a row whenever a task folder is added.
+## Known problems and fixes
+
+<!-- BEGIN GENERATED: problems -->
+_No problems recorded yet._
+<!-- END GENERATED: problems -->
+
+<!--
+The two blocks above are generated. Do not edit between the markers.
+Run `node scripts/validate.mjs --write` to refresh them.
+-->
