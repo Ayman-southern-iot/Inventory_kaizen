@@ -47,8 +47,10 @@ venv/
 # ---- Node ----
 node_modules/
 
-# ---- Claude Code local-only settings ----
+# ---- Claude Code local-only settings and tool output ----
 .claude/settings.local.json
+# Browser-tool screenshots and page snapshots can contain real inventory data
+.playwright-mcp/
 
 # ---- Editors / OS ----
 .vscode/
