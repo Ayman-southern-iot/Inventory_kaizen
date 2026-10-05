@@ -1,0 +1,41 @@
+## IDF Component Manager Manifest File
+##
+## ESP32-P4 has no native Wi-Fi radio: Wi-Fi comes from the onboard ESP32-C6
+## co-processor over SDIO via ESP-Hosted. These two components make the standard
+## esp_wifi.h API transparently proxy to the C6.
+##
+## Version pins copied VERBATIM from projects/09-wifi-ble-companion, because that
+## combination (esp_hosted 1.4.7 / esp_wifi_remote 0.14.5) is the one empirically
+## observed completing the INIT handshake and an RPC round-trip with THIS board's
+## C6 factory firmware. Do not bump without re-proving the handshake: a newer host
+## may require reflashing the C6, which needs a TTL-UART adapter on the test pads
+## plus the IO9-to-GND + hold-BOOT procedure.
+dependencies:
+  espressif/esp_wifi_remote:
+    matches:
+      - if: "idf_version >= 6.0"
+        version: ">=1.6,<2.0"
+      - if: "idf_version < 6.0"
+        version: "0.14.*"
+
+  espressif/esp_hosted:
+    matches:
+      - if: "idf_version >= 6.0"
+        version: ">=2.12,<3.0"
+      - if: "idf_version < 6.0"
+        version: "1.4.*"
+  idf:
+    version: ">=5.5.3"
+
+  # Microphone + speaker. The BSP knows THIS board's real ES8311 wiring
+  # (I2C SDA7/SCL8, I2S MCLK13/BCLK12/WS10/DOUT9/DIN11, PA enable GPIO53), so no
+  # pin numbers are hardcoded here. Same versions proven in projects 04 and 22.
+  waveshare/esp32_p4_platform:
+    version: "2.0.1"
+    rules:
+      - if: "target in [esp32p4]"
+
+  espressif/esp_codec_dev:
+    version: ">=1.5"
+    rules:
+      - if: "target in [esp32p4]"

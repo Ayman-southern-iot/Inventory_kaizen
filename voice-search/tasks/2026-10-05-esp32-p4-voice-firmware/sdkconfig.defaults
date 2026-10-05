@@ -1,0 +1,45 @@
+# Phase 0 scope: Wi-Fi bring-up only. Models/audio options are added in Phase 4.
+CONFIG_IDF_TARGET="esp32p4"
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_SPEED_200M=y
+CONFIG_CACHE_L2_CACHE_256KB=y
+CONFIG_CACHE_L2_CACHE_LINE_128B=y
+
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+CONFIG_FREERTOS_HZ=1000
+
+# Custom partition table (see partitions.csv). NOTE the 0x9000 offset, not 0x8000 --
+# the P4 bootloader is larger. Same value Espressif's own P4 speech examples use.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_OFFSET=0x9000
+
+# Let lwIP accept an NTP server offered by DHCP. Without this, esp_netif_sntp_init()
+# refuses a config with server_from_dhcp=true and returns ESP_ERR_INVALID_ARG.
+# Preferring the local router's NTP is faster than a public pool and keeps working on
+# a network with no outbound NTP.
+CONFIG_LWIP_DHCP_GET_NTP_SRV=y
+
+# WebSocket support in esp_http_server. The entire httpd_ws_* API (httpd_ws_frame_t,
+# httpd_ws_send_frame_async, ...) is compiled out without this, so the dashboard's live
+# event push does not even link. Default is OFF.
+CONFIG_HTTPD_WS_SUPPORT=y
+
+# Station-only: no SoftAP. Requested explicitly. Consequence worth knowing -- the
+# dashboard is then reachable ONLY at the board's LAN address, which both office
+# SSIDs have blocked so far via client isolation (ARP resolves, unicast is dropped).
+CONFIG_INV_SOFTAP_ENABLE=n
+
+# Back to 30 dB. MEASURED: 32 dB produced the only correct transcript so far
+# ("Hi SP, where is Arduino?" at -26.5 dBFS); raising it to 42 dB lifted levels as
+# intended but drove a capture to peak 32767 (hard clipping) and produced ZERO correct
+# transcripts out of 14. Distorted speech is worse for Whisper than quiet speech.
+CONFIG_INV_MIC_GAIN_DB=30
+
+# Read the microphone as MONO -- see board_audio.c for why this matters.
+CONFIG_INV_MIC_CHANNELS=1
