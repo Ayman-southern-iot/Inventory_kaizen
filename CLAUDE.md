@@ -57,6 +57,13 @@ Every section of the task template must be filled. If it does not apply, write `
 
 Follow `docs/research-playbook.md`: check this repo first (`INDEX.md`, the domain's `sources.md` and `troubleshooting/`, `git grep -i "<error text>"`), then official docs for the exact version, changelogs and issues, source code, and community answers last. Verify by running the smallest check, not by reading. Log every source you open, including MCP doc lookups and web searches.
 
+### Live systems (real APIs, real data)
+- **Start read-only.** Anything that creates, changes or deletes data on a real system needs the user's explicit go-ahead first, and uses the least-privileged key. Say plainly what a request could change before sending it.
+- **Keys:** one variable per key type in the repo-root `.env` (gitignored), named `IMS_KEY_<TYPE>`. Send keys in the `Authorization` header only, never in a URL. Keys stay in server-side processes and never go into HTML or JavaScript a browser receives (see `docs/decisions/0002-api-keys-stay-on-the-server.md`).
+- **Save structure, not records:** probe results keep status codes, timings, counts and field names, not real inventory records. Use small anonymised samples when an example is needed.
+- **Tool output can hold real data.** Screenshots and page snapshots (`.playwright-mcp/`) are gitignored. Delete them after use and never commit them.
+- **Processes you start:** tell the user, and stop them when done (free the port). A background server dies with the session, so tell the user how to start it themselves.
+
 ## 4. Secrets
 
 Never commit service account JSON, key files, `.env`, tokens, passwords, or real customer or inventory data. Use small anonymised samples.
