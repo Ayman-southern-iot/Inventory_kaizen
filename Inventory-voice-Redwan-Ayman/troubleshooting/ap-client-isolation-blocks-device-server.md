@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Domain** | `voice-search` |
+| **Domain** | `Inventory-voice-Redwan-Ayman` |
 | **Date** | 2026-10-05 |
-| **Task** | [2026-10-05-esp32-p4-voice-firmware](../tasks/2026-10-05-esp32-p4-voice-firmware/README.md) |
+| **Task** | [firmware](../tasks/2026-10-05-esp32-p4-voice-firmware/README.md) |
 
 ## Symptom
 

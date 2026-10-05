@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Domain** | `voice-search` |
+| **Domain** | `Inventory-voice-Redwan-Ayman` |
 | **Owner** | Redwan |
 | **Date** | 2026-10-05 |
 | **Status** | in-progress |
