@@ -30,7 +30,7 @@ Naming trap: the form says "Catalogue", the scope is spelled `catalog:write` (US
 
 | Endpoint | Returns (field names only) |
 |---|---|
-| `/api/v1/catalogue` | object: `generatedAt`, `products[]`, `categories[]` (flat), `locations[]` (flat), `counts{products,categories,locations}` |
+| `/api/v1/catalogue` | object: `generatedAt`, `products[]`, `categories[]` (flat), `locations[]` (flat), `counts{products,categories,locations}`. Each product: `id`, `code`, `name`, `description`, `unit`, `category{id,name,path[],productCount}`, `stock{total,available,inUse}`, `locations[]` of `{compartmentId,label,room,zone,compartment,storageId,quantity,available}`. Best single call for a search or card screen |
 | `/api/v1/categories` | array of nested tree nodes: `id`, `name`, `parentId`, `isTrackable`, `isActive`, `productCount`, `productCountInTree`, `children[]`, `createdAt`, `updatedAt` |
 | `/api/v1/locations` | array of zones: `id`, `name`, `roomId`, `roomName`, `isActive`, `compartments[]` |
 | `/api/v1/locations/rooms` | array of rooms: `id`, `name`, `isActive`, `zones[]` |
@@ -46,6 +46,7 @@ Naming trap: the form says "Catalogue", the scope is spelled `catalog:write` (US
 - **Never put a key in a URL.** The API accepts `?api_key=` only for read-only keys, and the key then lands in server logs, browser history and the Referer header. A key that can change data is refused there. Always use the header. We deliberately did not test the URL form.
 - **Writes are idempotent by header:** send a fresh UUID in `idempotency-key` for each stock operation; repeating the same value returns the first answer.
 - Typical latency from the developer machine: about 80 to 320 ms.
+- **No push or streaming feed is documented.** To keep a screen in sync, poll `/api/v1/catalogue` (5 seconds is 12 requests per minute) and compare the result while ignoring `generatedAt`, which changes on every response. Working example: [live-product-cards](tasks/2026-10-05-live-product-cards/README.md). Poll from one server, not from every browser, because the 120 per minute limit is per key.
 
 ### Steps to connect
 

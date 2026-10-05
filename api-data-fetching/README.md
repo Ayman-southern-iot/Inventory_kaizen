@@ -20,6 +20,7 @@ This domain checks that the inventory API can be reached with the service accoun
 | Date | Task | Owner | Status | Goal |
 |---|---|---|---|---|
 | 2026-10-05 | [ims-api-key-scope-probe](tasks/2026-10-05-ims-api-key-scope-probe/README.md) | Mahmud | in-progress | For each of the five IMS API key types (Inventory, Catalogue, Storage locations, Receive stock, Take stock)... |
+| 2026-10-05 | [live-product-cards](tasks/2026-10-05-live-product-cards/README.md) | Mahmud | working | Show every IMS product as a card in a simple web page using the Inventory (read) key, and have the cards up... |
 <!-- END GENERATED: tasks -->
 
 ## Known problems and fixes

@@ -19,6 +19,7 @@ Useful docs, references and pages found while working. The detailed per-task lis
 | 2026-10-05 | IMS API reference page (pasted by Mahmud) | Full endpoint list with scopes, parameters, example `curl` calls, limits | [ims-api-key-scope-probe](tasks/2026-10-05-ims-api-key-scope-probe/README.md) |
 | 2026-10-05 | IMS "Issue key" form (screenshot) | Scope names and which ones change data | [ims-api-key-scope-probe](tasks/2026-10-05-ims-api-key-scope-probe/README.md) |
 | 2026-10-05 | Live API at `https://ims.siot.solutions/api/v1/...` | Real response shapes, error codes, rate-limit headers | [ims-api-key-scope-probe](tasks/2026-10-05-ims-api-key-scope-probe/README.md) |
+| 2026-10-05 | Live `GET /api/v1/catalogue` | Product fields for a card or search screen; no push feed, so poll | [live-product-cards](tasks/2026-10-05-live-product-cards/README.md) |
 
 ## Unreliable or outdated sources
 Sources that turned out to be wrong, so nobody trusts them again.
