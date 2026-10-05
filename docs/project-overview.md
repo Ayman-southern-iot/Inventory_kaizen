@@ -25,7 +25,7 @@ How domains depend on each other (keep this up to date when you find a dependenc
 
 | Domain | Depends on | Why |
 |---|---|---|
-| voice-search | api-data-fetching | Uses the API connection and service account details verified there |
+| voice-search | api-data-fetching | Uses the IMS API connection, the Inventory (read) key and the catalogue endpoint verified there. See [voice-search/connections.md](../voice-search/connections.md) |
 
 ## Systems of record
 
@@ -33,7 +33,7 @@ Fill this in as tasks establish what is authoritative for what. Detailed notes s
 
 | System / document | Authoritative for | Owner | Domains that use it | Details |
 |---|---|---|---|---|
-| | | | | |
+| IMS API (`https://ims.siot.solutions`) | Products, categories, storage locations and stock quantities. Endpoints, key scopes and limits (its reference page is generated from the running API) | IMS owner (to confirm) | api-data-fetching, voice-search | [connections](../api-data-fetching/connections.md#ims-api-inventory-management-system), [sources](../api-data-fetching/sources.md) |
 
 ## Rules of the road
 

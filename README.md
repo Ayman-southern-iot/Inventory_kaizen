@@ -22,7 +22,7 @@ Developers work on different domains, all through Claude Code. Every piece of wo
 <!-- BEGIN GENERATED: domains -->
 | Domain | Scope | Owners | Tasks | Problems |
 |---|---|---|---|---|
-| [api-data-fetching](api-data-fetching/) | Fetching inventory data through the API and verifying that the service account works. | Mahmud | 2 | 1 |
+| [api-data-fetching](api-data-fetching/) | Fetching inventory data through the API and verifying that the service account works. | Mahmud | 2 | 2 |
 | [shared](shared/) | Code and notes used by more than one domain: API client helpers, anonymised sample data, glossary | Mahmud, Redwan | 0 | 0 |
 | [voice-search](voice-search/) | Voice-to-search over inventory data using the API. | Redwan, Mahmud | 0 | 0 |
 <!-- END GENERATED: domains -->

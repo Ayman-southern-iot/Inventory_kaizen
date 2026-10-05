@@ -7,3 +7,4 @@ Write one when you choose between real alternatives, when the reason would be lo
 | No. | Title | Status |
 |---|---|---|
 | [0001](0001-knowledge-base-conventions.md) | Knowledge base conventions | Accepted |
+| [0002](0002-api-keys-stay-on-the-server.md) | API keys stay on the server; browser pages talk to a local server | Accepted |
