@@ -1,6 +1,7 @@
 # Connections
 
-How to connect to each system used in this domain. Variable **names** only, never values.
+How to connect to each system used in this domain. Environment variable **names** only, never values.
+Add each new system as a new section at the **bottom**.
 
 ## <System name>
 
@@ -10,13 +11,14 @@ How to connect to each system used in this domain. Variable **names** only, neve
 | **Auth method** | |
 | **Roles / scopes needed** | |
 | **Env vars** | `EXAMPLE_VAR`: what it is |
+| **Where the credential lives** | <outside the repo: which secret manager or local path, never the value> |
 | **Verified working** | <date, task link> |
 
 Steps:
 1. 
 2. 
 
-Quick check that the connection works:
+Smallest command that proves the connection works:
 ```bash
-# smallest command that proves it
+# command here
 ```
