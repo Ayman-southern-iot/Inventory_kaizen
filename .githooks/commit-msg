@@ -1,0 +1,10 @@
+#!/bin/sh
+# Commit-msg: enforces "<type>(<scope>): <summary>" where scope is a domain folder or repo/hub/templates.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "commit-msg: Node.js 18+ is required to validate this repo (https://nodejs.org). Commit blocked." >&2
+  exit 1
+fi
+
+node scripts/validate.mjs --commit-msg "$1" || exit 1

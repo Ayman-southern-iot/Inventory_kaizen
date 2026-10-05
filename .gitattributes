@@ -1,0 +1,13 @@
+# Normalise line endings so Windows and macOS/Linux contributors do not create noisy diffs.
+* text=auto eol=lf
+
+# Hooks and shell scripts break with CRLF.
+.githooks/* text eol=lf
+*.sh text eol=lf
+*.mjs text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

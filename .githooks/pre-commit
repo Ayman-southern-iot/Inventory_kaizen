@@ -1,0 +1,15 @@
+#!/bin/sh
+# Pre-commit: scans staged files for secrets and validates the knowledge base structure.
+# Enabled with: git config core.hooksPath .githooks   (Claude Code sessions do this automatically)
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: Node.js 18+ is required to validate this repo (https://nodejs.org). Commit blocked." >&2
+  exit 1
+fi
+
+node scripts/validate.mjs --staged || {
+  echo "" >&2
+  echo "pre-commit: commit blocked. Fix the problems above (do not use --no-verify)." >&2
+  exit 1
+}

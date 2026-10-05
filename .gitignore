@@ -1,31 +1,61 @@
-# Secrets and credentials: never commit
+# ---- Secrets and credentials: never commit ----
+# This is only the first safety net. The real protection is scripts/validate.mjs,
+# which runs in the pre-commit hook and in CI and scans file names AND contents.
+# Keep key files outside the repo (for example ~/.config/inventory-kaizen/) and
+# point to them with an environment variable.
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-*.p12
-*service-account*.json
-*serviceaccount*.json
-*credentials*.json
-client_secret*.json
+!.env.sample
+!.env.template
 secrets/
+**/secrets/
+*.pem
+*.p12
+*.pfx
+*.key
+*.jks
+*.keystore
+*service-account*.json
+*service_account*.json
+*serviceaccount*.json
+*credential*.json
+*secret*.json
+*private-key*.json
+*private_key*.json
+*-key.json
+*_key.json
+key.json
+keys.json
+sa-*.json
+*.sa.json
+# Google Cloud downloads keys as <project-id>-<12 hex chars>.json
+*-????????????.json
 
-# Python
+# ---- Real data: never commit dumps; commit small anonymised samples only ----
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+
+# ---- Python ----
 __pycache__/
 *.pyc
 .venv/
 venv/
 
-# Node
+# ---- Node ----
 node_modules/
 
-# Editors / OS
+# ---- Claude Code local-only settings ----
+.claude/settings.local.json
+
+# ---- Editors / OS ----
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Local scratch
+# ---- Local scratch ----
 *.log
 tmp/
