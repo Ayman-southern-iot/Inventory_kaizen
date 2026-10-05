@@ -154,9 +154,20 @@ function checkMetaDate(where, value) {
 }
 
 // ---------- structure checks ----------
+// Files git ignores (local .env, scratch) never reach a commit, so they are not a layout problem.
+function gitIgnored(name) {
+  try {
+    execFileSync('git', ['check-ignore', '-q', name], { cwd: ROOT, stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function checkRoot() {
   for (const e of readdirSync(ROOT, { withFileTypes: true })) {
     if (e.name.startsWith('.') && e.isDirectory()) continue;
+    if (gitIgnored(e.name)) continue;
     if (e.isFile() && !ROOT_FILES.has(e.name)) {
       err(`${e.name}: not allowed in the repo root. Task work belongs in <domain>/tasks/<date>-<name>/ (see CLAUDE.md)`);
     }
