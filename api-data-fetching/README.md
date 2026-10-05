@@ -17,13 +17,17 @@ This domain checks that the inventory API can be reached with the service accoun
 ## Tasks
 
 <!-- BEGIN GENERATED: tasks -->
-_No tasks yet._
+| Date | Task | Owner | Status | Goal |
+|---|---|---|---|---|
+| 2026-10-05 | [ims-api-key-scope-probe](tasks/2026-10-05-ims-api-key-scope-probe/README.md) | Mahmud | in-progress | For each of the five IMS API key types (Inventory, Catalogue, Storage locations, Receive stock, Take stock)... |
 <!-- END GENERATED: tasks -->
 
 ## Known problems and fixes
 
 <!-- BEGIN GENERATED: problems -->
-_No problems recorded yet._
+| Date | Problem |
+|---|---|
+| 2026-10-05 | [Validator flags the local .env file as a stray root file](troubleshooting/validator-flags-root-env-file.md) |
 <!-- END GENERATED: problems -->
 
 <!--

@@ -1,0 +1,241 @@
+{
+  "date": "2026-10-05T07:16:57.443Z",
+  "baseUrl": "https://ims.siot.solutions",
+  "keyType": "inventory-read",
+  "scopeTested": "inventory:read",
+  "envVariable": "IMS_KEY_INVENTORY_READ",
+  "node": "v22.15.0",
+  "writesProbed": false,
+  "results": [
+    {
+      "name": "no Authorization header is rejected",
+      "method": "GET",
+      "path": "/api/v1/products?limit=1",
+      "status": 401,
+      "ms": 322,
+      "verdict": "PASS",
+      "apiError": "{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\"}"
+    },
+    {
+      "name": "wrong key is rejected",
+      "method": "GET",
+      "path": "/api/v1/products?limit=1",
+      "status": 401,
+      "ms": 83,
+      "verdict": "PASS",
+      "apiError": "{\"code\":\"API_KEY_INVALID\",\"message\":\"API key is not valid\"}"
+    },
+    {
+      "name": "catalogue",
+      "method": "GET",
+      "path": "/api/v1/catalogue",
+      "status": 200,
+      "ms": 193,
+      "verdict": "PASS",
+      "shape": {
+        "type": "object",
+        "fields": {
+          "generatedAt": "string",
+          "products": {
+            "type": "array",
+            "length": 65,
+            "item": {
+              "type": "object",
+              "fields": 8
+            }
+          },
+          "categories": {
+            "type": "array",
+            "length": 46,
+            "item": {
+              "type": "object",
+              "fields": 4
+            }
+          },
+          "locations": {
+            "type": "array",
+            "length": 18,
+            "item": {
+              "type": "object",
+              "fields": 6
+            }
+          },
+          "counts": {
+            "type": "object",
+            "fields": {
+              "products": "number",
+              "categories": "number",
+              "locations": "number"
+            }
+          }
+        }
+      },
+      "topLevelArrayLength": 65
+    },
+    {
+      "name": "categories",
+      "method": "GET",
+      "path": "/api/v1/categories",
+      "status": 200,
+      "ms": 103,
+      "verdict": "PASS",
+      "shape": {
+        "type": "array",
+        "length": 10,
+        "item": {
+          "type": "object",
+          "fields": {
+            "id": "string",
+            "name": "string",
+            "parentId": "null",
+            "isTrackable": "boolean",
+            "isActive": "boolean",
+            "productCount": "number",
+            "createdAt": "string",
+            "updatedAt": "string",
+            "productCountInTree": "number",
+            "children": {
+              "type": "array",
+              "length": 0
+            }
+          }
+        }
+      },
+      "topLevelArrayLength": 10
+    },
+    {
+      "name": "locations",
+      "method": "GET",
+      "path": "/api/v1/locations",
+      "status": 200,
+      "ms": 91,
+      "verdict": "PASS",
+      "shape": {
+        "type": "array",
+        "length": 8,
+        "item": {
+          "type": "object",
+          "fields": {
+            "id": "string",
+            "name": "string",
+            "roomId": "string",
+            "roomName": "string",
+            "isActive": "boolean",
+            "compartments": {
+              "type": "array",
+              "length": 2
+            }
+          }
+        }
+      },
+      "topLevelArrayLength": 8
+    },
+    {
+      "name": "rooms",
+      "method": "GET",
+      "path": "/api/v1/locations/rooms",
+      "status": 200,
+      "ms": 95,
+      "verdict": "PASS",
+      "shape": {
+        "type": "array",
+        "length": 2,
+        "item": {
+          "type": "object",
+          "fields": {
+            "id": "string",
+            "name": "string",
+            "isActive": "boolean",
+            "zones": {
+              "type": "array",
+              "length": 5
+            }
+          }
+        }
+      },
+      "topLevelArrayLength": 2
+    },
+    {
+      "name": "products",
+      "method": "GET",
+      "path": "/api/v1/products?limit=100",
+      "status": 200,
+      "ms": 91,
+      "verdict": "PASS",
+      "shape": {
+        "type": "object",
+        "fields": {
+          "items": {
+            "type": "array",
+            "length": 65,
+            "item": {
+              "type": "object",
+              "fields": 18
+            }
+          },
+          "page": "number",
+          "limit": "number",
+          "total": "number"
+        }
+      },
+      "topLevelArrayLength": 65
+    },
+    {
+      "name": "one product (first from list)",
+      "method": "GET",
+      "path": "/api/v1/products/:id",
+      "status": 200,
+      "ms": 93,
+      "verdict": "PASS",
+      "shape": {
+        "type": "object",
+        "fields": {
+          "id": "string",
+          "productCode": "string",
+          "name": "string",
+          "categoryId": "string",
+          "categoryName": "string",
+          "isTrackable": "boolean",
+          "unit": "string",
+          "defaultReturnable": "boolean",
+          "description": "string",
+          "isActive": "boolean",
+          "totalQuantity": "number",
+          "totalReserved": "number",
+          "totalAvailable": "number",
+          "totalOnHand": "number",
+          "totalQuarantined": "number",
+          "totalInUse": "number",
+          "totalOwned": "number",
+          "createdAt": "string",
+          "placements": {
+            "type": "array",
+            "length": 1,
+            "item": {
+              "type": "object",
+              "fields": 12
+            }
+          },
+          "activeBorrows": {
+            "type": "array",
+            "length": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "counted 65 products over 1 page(s)",
+      "method": "GET",
+      "path": "/api/v1/products?page=N",
+      "status": 200,
+      "ms": 79,
+      "verdict": "",
+      "totalProductsCounted": 65,
+      "pagingMeta": {
+        "page": 1,
+        "limit": 100,
+        "total": 65
+      }
+    }
+  ]
+}
