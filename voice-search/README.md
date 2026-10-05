@@ -17,9 +17,7 @@ This domain explores searching inventory by voice: speech input, turning it into
 ## Tasks
 
 <!-- BEGIN GENERATED: tasks -->
-| Date | Task | Owner | Status | Goal |
-|---|---|---|---|---|
-| 2026-10-05 | [esp32-p4-voice-firmware](tasks/2026-10-05-esp32-p4-voice-firmware/README.md) | Redwan | in-progress | Can an ESP32-P4 answer a spoken question about the stores — "where is arduino?" — by |
+_No tasks yet._
 <!-- END GENERATED: tasks -->
 
 ## Known problems and fixes

@@ -18,7 +18,7 @@ idf_component_register(SRCS "voice_inventory_main.c"
                             "board_audio.c"
                             "query_parse.c"
                        INCLUDE_DIRS "."
-                       EMBED_FILES "${WEB_GZ}" "${CMAKE_CURRENT_SOURCE_DIR}/../test/sample.wav"
+                       EMBED_FILES "${WEB_GZ}"
                        PRIV_REQUIRES esp_driver_gpio esp_driver_i2s esp_driver_i2c esp32_p4_platform esp_codec_dev nvs_flash esp_netif esp_event esp_timer esp_wifi
                                      esp_http_client esp_http_server lwip esp-tls
                                      mbedtls json)
