@@ -1,0 +1,17 @@
+# Espressif ESP32 Partition Table
+# Name,   Type, SubType, Offset,  Size
+#
+# Defined in full NOW, before any NVS provisioning, so that adding the speech-model
+# partition in Phase 4 does not force a repartition that would wipe provisioned
+# secrets out of nvs.
+#
+# nvs is 64K (vs the usual 24K) because it holds Wi-Fi credentials, the API key, and
+# the cached product catalogue.
+# factory is 5M: project 22's esp-sr image alone was 1.71M; this adds TLS, an HTTP
+# server and embedded web assets.
+# model is 6M, holding wn9_hiesp + mn7_en + vadnet1_medium (3.2M measured) -- the
+# "model" label is what esp_srmodel_init("model") looks up.
+nvs,      data, nvs,     ,        64K,
+phy_init, data, phy,     ,        4K,
+factory,  app,  factory, ,        5M,
+model,    data, spiffs,  ,        6M,

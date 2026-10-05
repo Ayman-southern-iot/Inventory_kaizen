@@ -1,0 +1,165 @@
+menu "Voice Inventory Query Configuration"
+
+    # NOTE: there is deliberately no auth-style option. The IMS API documents
+    # `Authorization: Bearer <key>` as the only scheme, so inventory_api.c always sends
+    # that. A configurable choice here would just be a way to get it wrong.
+
+    config INV_SNTP_TIMEOUT_MS
+        int "SNTP sync timeout (ms)"
+        default 15000
+        help
+            HTTPS certificate validation compares the cert's validity window against
+            the system clock. This board boots at the epoch (no RTC battery fitted),
+            so without SNTP every TLS handshake fails as "certificate not yet valid".
+            Plain http:// works regardless.
+
+
+    config VOICE_LED_GPIO
+        int "Indicator LED GPIO"
+        default 26
+        help
+            Lights when an inventory fetch SUCCEEDS, stays dark when it fails.
+
+            This board has NO GPIO-controllable onboard LED -- its only discrete LED is
+            the hardwired PWR indicator, and every other LED-named net belongs to the
+            IP101 Ethernet PHY or the CH334F USB hub. So an external LED plus a
+            220-470 ohm series resistor is required: GPIO26 is header pin 31, with GND
+            on pin 30 or 34. Do not use pin 35 (GPIO53 = audio power-amp enable).
+
+    config VOICE_LED_ACTIVE_LOW
+        bool "LED is active-low"
+        default n
+
+    config INV_SEARCH_TERM
+        string "Search term for the demo query"
+        default "arduino"
+        help
+            The term sent as /api/v1/products?search=<term>. In Phase 4 this comes from
+            the recognised voice command instead; a plain word like "arduino" is far
+            easier for MultiNet than an alphanumeric product code.
+
+    config INV_POLL_SECONDS
+        int "Seconds between demo queries"
+        default 20
+        range 5 600
+        help
+            IMS allows 120 requests/minute per key and its docs say to poll from ONE
+            server rather than per browser. The board is that server; browsers receive
+            pushes over the dashboard WebSocket. 20 s is far inside the limit.
+
+
+    config INV_SOFTAP_ENABLE
+        bool "Also broadcast a SoftAP for the dashboard"
+        default y
+        help
+            Runs the C6 in WIFI_MODE_APSTA: still joined to your Wi-Fi for the IMS API,
+            while ALSO broadcasting its own network you can attach to directly.
+
+            This exists because the office SSID has AP client isolation -- unicast
+            station-to-station traffic is dropped, so nothing on that network can reach
+            a server on this board (proven: broadcast arrives, unicast does not). The
+            SoftAP sidesteps it without needing any router change.
+
+            A device attached to the SoftAP has no internet route; it only needs the
+            dashboard. The board keeps its own uplink for the API.
+
+    config INV_SOFTAP_SSID
+        string "SoftAP SSID"
+        default "ESP32-P4-Inventory"
+        depends on INV_SOFTAP_ENABLE
+
+    config INV_SOFTAP_PASSWORD
+        string "SoftAP password (8-63 chars, or empty for an open network)"
+        default "inventory123"
+        depends on INV_SOFTAP_ENABLE
+        help
+            Not a real secret -- it only gates access to a read-only dashboard on a
+            local radio, and it is committed in sdkconfig.defaults. The IMS API key is
+            NOT reachable from the dashboard, so an attacker on this AP cannot obtain it.
+
+    config INV_VOICE_SVC_URL
+        string "Voice service base URL (Whisper STT + Piper TTS)"
+        default "http://10.10.8.51:8099"
+        help
+            Runs on the infra VM. POST /stt takes raw PCM (16-bit signed LE, 16 kHz,
+            mono, no WAV header, max 15 s) and returns {"text": ...}; POST /tts takes
+            {"text": ...} and returns PCM in the same format.
+
+            The service allowlists this board's IP, so a 403 FORBIDDEN_NETWORK means
+            the board's DHCP address changed and the server needs updating. A timeout
+            instead means the cross-subnet route is down.
+
+    config INV_MIC_GAIN_DB
+        int "Microphone input gain (dB)"
+        default 42
+        range 0 48
+        help
+            Analog gain on the onboard SMD microphone. Project 22 used 24 dB and found
+            speech had to be loud and close: -27 dBFS was recognised, -41 dBFS never
+            was. 32 dB is a measured step up from that to widen the usable margin.
+
+            MEASURED 2026-10-05 with real speech at 32 dB: the ONE transcript that came
+            back correct was captured at -26.5 dBFS; everything from -36 dBFS down
+            produced Whisper hallucinations ("They grow." repeated 23 times) or
+            "no speech heard". Project 22 independently measured the same -27 dBFS
+            threshold with a completely different recogniser, so this is a capture-level
+            limit, not a model limit. Raised to 42 dB to close that ~10 dB gap.
+
+            The idle noise floor is about -48 dBFS, so going much higher amplifies room
+            noise as much as speech.
+
+    config INV_RECORD_SECONDS
+        int "Seconds to record per question"
+        default 4
+        range 1 15
+        help
+            A spoken question is typically 2-4 s. The service rejects anything over
+            15 s with HTTP 413, which it may deliver as a connection reset mid-upload.
+
+    config INV_MIN_SPEECH_DBFS
+        int "Minimum level to bother transcribing (negative dBFS)"
+        default -40
+        range -70 -10
+        help
+            Recordings quieter than this are discarded WITHOUT calling the service.
+
+            This is not an optimisation, it is a correctness guard. Fed near-silence,
+            Whisper does not return nothing -- it hallucinates repetitive text
+            ("Thank you very much" twelve times). Measured here: every capture below
+            -35 dBFS produced either a hallucination or an empty result, and not one
+            produced usable text. Sending that audio can only mislead.
+
+    config INV_CACHE_MAX_AGE_S
+        int "Refresh the catalogue cache after this many seconds"
+        default 120
+        range 15 3600
+        help
+            The catalogue is fetched once and matched locally, so a question costs no
+            API call. This bounds how stale an answer can be. IMS allows 120 requests
+            per minute; at 120 s between refreshes we use 0.5 per minute.
+
+    config INV_WAV_SINK_URL
+        string "Mirror each capture to this URL (empty = off)"
+        default "http://192.168.68.104:8077/"
+        help
+            Diagnostic. POSTs every recorded WAV to a listener so the audio can be
+            heard and measured off-board.
+
+            This exists because transcription failures are untreatable from the serial
+            log alone: clipping, a wrong channel, a sample-rate mismatch and a DC
+            offset all look identical from here. Set empty to disable.
+
+    config INV_MIC_CHANNELS
+        int "Channels to open the microphone with (1 = mono, 2 = stereo+deinterleave)"
+        default 1
+        range 1 2
+        help
+            Project 22 opened the ES8311 in STEREO and fed both channels to AFE, letting
+            AFE pick the microphone. It never validated extracting mono itself.
+
+            If the codec actually delivers MONO frames while we ask for 2 channels and
+            take every other sample, the result is a half-rate, aliased signal -- which
+            measures as noise (zero-crossing rate 5000-7500/s where speech is 500-3000)
+            and makes Whisper hallucinate. Set 1 to read mono directly.
+
+endmenu

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventory Voice Console</title>
+<style>
+:root{
+  --bg:#0e1116; --panel:#161b22; --panel-2:#1c232c; --line:#2a323d;
+  --ink:#e6edf3; --ink-dim:#8b98a5; --ink-faint:#5c6773;
+  --ok:#3fb950; --fail:#f85149; --pend:#d29922;
+  --c-info:#6e7781; --c-wake:#a371f7; --c-cmd:#58a6ff; --c-sku:#39c5cf;
+  --c-http:#d29922; --c-parse:#2dd4a7; --c-result:#3fb950; --c-error:#f85149;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.5;display:flex;flex-direction:column;
+}
+
+/* ---------- header ---------- */
+header{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:12px 16px;border-bottom:1px solid var(--line);background:var(--panel);
+}
+h1{font-size:15px;margin:0;font-weight:600;letter-spacing:-.01em}
+h1 .sub{color:var(--ink-faint);font-weight:400}
+.stats{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{font-family:var(--mono);font-size:13px;font-weight:600}
+.stat span{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;
+  background:var(--fail);transition:background .2s}
+.dot.live{background:var(--ok);box-shadow:0 0 0 3px rgba(63,185,80,.18)}
+.led{width:14px;height:14px;border-radius:50%;background:#30363d;border:1px solid var(--line);
+  transition:all .25s}
+.led.on{background:var(--ok);border-color:var(--ok);box-shadow:0 0 12px rgba(63,185,80,.75)}
+
+/* ---------- panes ---------- */
+main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);min-height:0}
+section{background:var(--bg);display:flex;flex-direction:column;min-height:0;min-width:0}
+.pane-head{
+  padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel);
+  display:flex;align-items:center;gap:10px;
+}
+.pane-head h2{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--ink-dim);font-weight:600}
+.pane-head .count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+.pane-body{flex:1;overflow-y:auto;padding:8px 0;min-height:0}
+
+/* ---------- process log ---------- */
+.ev{display:grid;grid-template-columns:62px 104px 1fr;gap:10px;align-items:baseline;
+  padding:5px 16px;border-left:2px solid transparent}
+.ev:hover{background:var(--panel-2)}
+.ev .t{font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:right}
+.ev .badge{
+  font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.04em;
+  padding:2px 6px;border-radius:3px;text-align:center;font-weight:600;
+  background:var(--panel-2);color:var(--c-info);border:1px solid var(--line);
+}
+.ev .msg{font-family:var(--mono);font-size:12px;word-break:break-word;color:var(--ink)}
+.ev.fail{border-left-color:var(--fail);background:rgba(248,81,73,.06)}
+.ev.fail .msg{color:#ffb4ae}
+.ev.pending{opacity:.72}
+.badge.wakeword{color:var(--c-wake);border-color:var(--c-wake)}
+.badge.command{color:var(--c-cmd);border-color:var(--c-cmd)}
+.badge.sku{color:var(--c-sku);border-color:var(--c-sku)}
+.badge.http_request,.badge.http_response{color:var(--c-http);border-color:var(--c-http)}
+.badge.parse{color:var(--c-parse);border-color:var(--c-parse)}
+.badge.result{color:var(--c-result);border-color:var(--c-result)}
+.badge.error{color:var(--c-error);border-color:var(--c-error)}
+
+/* ---------- result card ---------- */
+.result-wrap{padding:16px}
+.empty{color:var(--ink-faint);font-size:13px;padding:28px 16px;text-align:center;
+  border:1px dashed var(--line);border-radius:8px}
+.card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.card.ok{border-color:rgba(63,185,80,.45)}
+.card.bad{border-color:rgba(248,81,73,.45)}
+.card-top{padding:14px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sku{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.02em}
+.pname{color:var(--ink-dim);font-size:13px}
+.pill{margin-left:auto;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;padding:4px 10px;border-radius:999px}
+.pill.in{background:rgba(63,185,80,.16);color:var(--ok)}
+.pill.out{background:rgba(210,153,34,.16);color:var(--pend)}
+.pill.err{background:rgba(248,81,73,.16);color:var(--fail)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+.cell{padding:12px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cell:last-child{border-right:none}
+.cell span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--ink-faint);margin-bottom:3px}
+.cell b{font-family:var(--mono);font-size:17px;font-weight:600}
+.qty b{font-size:24px}
+.card-foot{padding:9px 16px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);
+  display:flex;gap:14px;flex-wrap:wrap}
+.errbox{padding:14px 16px;font-family:var(--mono);font-size:12px;color:#ffb4ae}
+
+@media (max-width:860px){
+  main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .stats{width:100%;margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Inventory Voice Console <span class="sub">· ESP32-P4</span></h1>
+  <div class="stats">
+    <div class="stat"><b id="conn"><span class="dot" id="dot"></span>offline</b><span>link</span></div>
+    <div class="stat"><b id="events">0</b><span>events</span></div>
+    <div class="stat"><b id="queries">0</b><span>queries</span></div>
+    <div class="stat"><b><span class="led" id="led"></span></b><span>led</span></div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="pane-head">
+      <h2>Process</h2>
+      <span class="count" id="evcount">waiting…</span>
+    </div>
+    <div class="pane-body" id="log"></div>
+  </section>
+
+  <section>
+    <div class="pane-head"><h2>Result</h2></div>
+    <div class="pane-body">
+      <div class="result-wrap" id="result">
+        <div class="empty">No query yet.<br>Say the wake word, then a product.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var log = document.getElementById('log');
+  var result = document.getElementById('result');
+  var elConn = document.getElementById('conn'), elDot = document.getElementById('dot');
+  var elEvents = document.getElementById('events'), elQueries = document.getElementById('queries');
+  var elCount = document.getElementById('evcount'), elLed = document.getElementById('led');
+  var nEvents = 0, nQueries = 0, MAX_ROWS = 300;
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  function clock(ms){
+    var s = ms/1000;
+    return s.toFixed(2).padStart(7,' ').replace(/ /g,' ') + 's';
+  }
+
+  function addEvent(ev){
+    if (!ev || !ev.stage) return;
+    nEvents++;
+    elEvents.textContent = nEvents;
+
+    var row = document.createElement('div');
+    row.className = 'ev' + (ev.status === 'fail' ? ' fail' : ev.status === 'pending' ? ' pending' : '');
+    row.innerHTML =
+      '<div class="t">' + clock(ev.t_ms || 0) + '</div>' +
+      '<div class="badge ' + esc(ev.stage) + '">' + esc(ev.stage.replace('http_','')) + '</div>' +
+      '<div class="msg">' + esc(ev.message || describe(ev)) + '</div>';
+
+    // Keep the newest at the bottom, and stay pinned there unless the user scrolled up.
+    var pinned = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+    log.appendChild(row);
+    while (log.childElementCount > MAX_ROWS) log.removeChild(log.firstChild);
+    if (pinned) log.scrollTop = log.scrollHeight;
+    elCount.textContent = nEvents + ' event' + (nEvents === 1 ? '' : 's');
+
+    if (ev.stage === 'result') renderResult(ev);
+  }
+
+  function describe(ev){
+    if (ev.stage !== 'result') return '';
+    return ev.ok ? (ev.sku + ': qty ' + ev.quantity) : (ev.sku + ': ' + (ev.error||'failed'));
+  }
+
+  function renderResult(ev){
+    nQueries++; elQueries.textContent = nQueries;
+    // The LED mirrors the firmware's own rule: it lights on a SUCCESSFUL FETCH,
+    // which is not the same thing as the product being in stock.
+    elLed.className = 'led' + (ev.ok ? ' on' : '');
+
+    if (!ev.ok){
+      result.innerHTML =
+        '<div class="card bad">' +
+          '<div class="card-top">' +
+            '<div><div class="sku">' + esc(ev.sku || '—') + '</div>' +
+            '<div class="pname">lookup failed</div></div>' +
+            '<div class="pill err">error</div>' +
+          '</div>' +
+          '<div class="errbox">' + esc(ev.error || 'unknown error') + '</div>' +
+          '<div class="card-foot"><span>HTTP ' + esc(ev.http_status) + '</span>' +
+          '<span>' + esc(ev.latency_ms) + ' ms</span></div>' +
+        '</div>';
+      return;
+    }
+
+    var inStock = !!ev.available;
+    result.innerHTML =
+      '<div class="card ok">' +
+        '<div class="card-top">' +
+          '<div><div class="sku">' + esc(ev.sku) + '</div>' +
+          '<div class="pname">' + esc(ev.name || '') + '</div></div>' +
+          '<div class="pill ' + (inStock?'in':'out') + '">' +
+            (inStock ? 'in stock' : 'out of stock') + '</div>' +
+        '</div>' +
+        '<div class="grid">' +
+          '<div class="cell qty"><span>quantity</span><b>' + esc(ev.quantity) + '</b></div>' +
+          '<div class="cell"><span>unit</span><b>' + esc(ev.unit || '—') + '</b></div>' +
+          '<div class="cell"><span>location</span><b>' + esc(ev.location || '—') + '</b></div>' +
+        '</div>' +
+        '<div class="card-foot"><span>HTTP ' + esc(ev.http_status) + '</span>' +
+        '<span>' + esc(ev.latency_ms) + ' ms</span></div>' +
+      '</div>';
+  }
+
+  function setConn(up){
+    elDot.className = 'dot' + (up ? ' live' : '');
+    elConn.innerHTML = '<span class="dot' + (up?' live':'') + '" id="dot"></span>' + (up ? 'live' : 'offline');
+    elDot = document.getElementById('dot');
+  }
+
+  // Retained history first, so a tab opened mid-run is not blank.
+  fetch('/api/state').then(function(r){ return r.json(); })
+    .then(function(items){ (items||[]).forEach(addEvent); })
+    .catch(function(){});
+
+  var ws, retry = 1000;
+  function connect(){
+    ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+    ws.onopen = function(){ setConn(true); retry = 1000; };
+    ws.onclose = function(){
+      setConn(false);
+      // Back off to 10s: the board reboots during development and a tight reconnect
+      // loop would bury the log in noise.
+      setTimeout(connect, retry);
+      retry = Math.min(retry * 2, 10000);
+    };
+    ws.onerror = function(){ try { ws.close(); } catch(e){} };
+    ws.onmessage = function(m){
+      try { addEvent(JSON.parse(m.data)); } catch(e){}
+    };
+  }
+  connect();
+})();
+</script>
+</body>
+</html>
